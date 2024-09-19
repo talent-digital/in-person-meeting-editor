@@ -30,3 +30,7 @@ input[type="checkbox"] {
   width: auto;
   margin: 0;
 }
+
+.answer-node {
+  background: #edf7ed;
+}

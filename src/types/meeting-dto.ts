@@ -1,7 +1,7 @@
-import { MeetingDtoNode } from "./meeting-dto-node"
+import { MeetingNodeDto } from "./meeting-node-dto"
 
 export type MeetingDto = {
   conversation: {
-    [id: string]: MeetingDtoNode
+    [id: string]: MeetingNodeDto
   }
 }

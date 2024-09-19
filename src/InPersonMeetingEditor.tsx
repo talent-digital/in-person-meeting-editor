@@ -13,19 +13,24 @@ import {
 } from "@xyflow/react"
 import UploadIcon from "@mui/icons-material/Upload"
 import { Button } from "@mui/material"
+import AddIcon from "@mui/icons-material/Add"
+import FileDownloadIcon from "@mui/icons-material/FileDownload"
 
 import "@xyflow/react/dist/style.css"
 import "./InPersonMeetingEditor.css"
 
 import { nodeTypes } from "./nodes"
-import { MeetingNodeType, MeetingNodeField } from "./nodes/types"
 import { mapJsonToNodes } from "./helpers/map-json-to-nodes"
 import { MeetingDto } from "./types/meeting-dto"
-import { MeetingDtoNode } from "./types/meeting-dto-node"
+import { MeetingNodeDto } from "./types/meeting-node-dto"
 import toast from "react-hot-toast"
+import { AppNode } from "./types/app-node"
+import { MeetingNodeField, MeetingNodeType } from "./nodes/MeetingNode"
+import { AnswerNodeField } from "./nodes/AnswerNode"
+import { EnablesDto } from "./types/enables-dto"
 
 export function InPersonMeetingEditor() {
-  const [nodes, setNodes, onNodesChange] = useNodesState<MeetingNodeType>([])
+  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>([])
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([])
 
   const onConnect: OnConnect = useCallback(
@@ -45,7 +50,7 @@ export function InPersonMeetingEditor() {
               ...node.data,
               resultsIn: connection.target,
             },
-          }
+          } as AppNode
         }
 
         return node
@@ -73,15 +78,15 @@ export function InPersonMeetingEditor() {
         return
       }
 
-      handleNodeIdChange(nodeId, value)
+      handleMeetingNodeIdChange(nodeId, value)
       handleEdgeOnNodeIdChange(nodeId, value)
     } else {
       handleRegularNodeChange(nodeId, value, field)
     }
   }
 
-  const handleNodeIdChange = (oldId: string, newId: string) => {
-    const newNodes = nodes.map((node) => {
+  const handleMeetingNodeIdChange = (oldId: string, newId: string) => {
+    const newNodes: AppNode[] = nodes.map((node) => {
       if (node.id === oldId) {
         return {
           ...node,
@@ -89,7 +94,7 @@ export function InPersonMeetingEditor() {
           data: {
             ...node.data,
           },
-        }
+        } as AppNode
       }
 
       if (node.data.resultsIn === oldId) {
@@ -99,7 +104,7 @@ export function InPersonMeetingEditor() {
             ...node.data,
             resultsIn: newId,
           },
-        }
+        } as AppNode
       }
 
       return node
@@ -135,7 +140,7 @@ export function InPersonMeetingEditor() {
     value: string | boolean,
     field: MeetingNodeField,
   ) => {
-    const newNodes = nodes.map((node) => {
+    const newNodes: AppNode[] = nodes.map((node) => {
       if (node.id === nodeId) {
         return {
           ...node,
@@ -143,13 +148,29 @@ export function InPersonMeetingEditor() {
             ...node.data,
             [field]: value,
           },
-        }
+        } as AppNode
       }
 
       return node
     })
 
     setNodes(newNodes)
+  }
+
+  const handleAddNode = () => {
+    const lastNode = nodes[nodes.length - 1] ?? { position: { x: 0, y: 0 } }
+    const newNode: MeetingNodeType = {
+      id: `node_${nodes.length + 1}`,
+      type: "meeting-node",
+      position: { x: lastNode.position.x + 300, y: lastNode.position.y },
+      data: {
+        text: "",
+        actor: "",
+        resultsIn: "",
+      },
+    }
+
+    setNodes([...nodes, newNode])
   }
 
   const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -168,29 +189,52 @@ export function InPersonMeetingEditor() {
   }
 
   const handleExport = () => {
-    const conversation: MeetingDto["conversation"] = nodes.reduce((acc, node) => {
-      const { data, id } = node
+    const conversation: MeetingDto["conversation"] = nodes.reduce(
+      (acc: MeetingDto["conversation"], node) => {
+        const { data, id, type } = node
 
-      if (!data.actor) {
-        toast.error("Actor is required")
-        return acc
-      }
+        if (type === "meeting-node") {
+          const meetingNode: MeetingNodeDto = {
+            text: data.text,
+            actor: data.actor,
+            resultsIn: data.resultsIn,
+          }
 
-      const meetingNode: MeetingDtoNode = {
-        text: data.text,
-        actor: data.actor,
-        resultsIn: data.resultsIn,
-      }
-
-      if (id) {
-        return {
-          ...acc,
-          [id]: meetingNode,
+          if (id) {
+            return {
+              ...acc,
+              [id]: meetingNode,
+            }
+          }
         }
-      }
 
-      return acc
-    }, {})
+        if (type === "answer-node") {
+          const answerNode: EnablesDto = {
+            text: data.text,
+            resultsIn: data.resultsIn,
+            passTime: data.passTime,
+          }
+
+          const parentId = edges.find((edge) => edge.target === id)?.source
+
+          if (parentId) {
+            const oldEnables = acc[parentId]?.enables ?? []
+            const enables = [...oldEnables, answerNode]
+
+            return {
+              ...acc,
+              [parentId]: {
+                ...acc[parentId],
+                enables,
+              },
+            }
+          }
+        }
+
+        return acc
+      },
+      {},
+    )
 
     const exportData: MeetingDto = { conversation }
 
@@ -221,21 +265,32 @@ export function InPersonMeetingEditor() {
             <input type='file' hidden onChange={handleImport} />
           </Button>
         </div>
-        <Button color='primary' variant='outlined' onClick={handleExport}>
+        <Button
+          color='primary'
+          variant='outlined'
+          onClick={handleExport}
+          startIcon={<FileDownloadIcon />}
+        >
           Export
+        </Button>
+        <Button color='primary' variant='outlined' onClick={handleAddNode} startIcon={<AddIcon />}>
+          Add node
         </Button>
       </div>
       <ReactFlow
-        nodes={nodes.map((node) => ({
-          ...node,
-          data: {
-            ...node.data,
-            onDelete: () => handleNodeDelete(node.id),
-            onChange: (value: string | boolean, field: MeetingNodeField) => {
-              handleNodeChange(node.id, value, field)
-            },
-          },
-        }))}
+        nodes={nodes.map(
+          (node) =>
+            ({
+              ...node,
+              data: {
+                ...node.data,
+                onDelete: () => handleNodeDelete(node.id),
+                onChange: (value: string | boolean, field: MeetingNodeField | AnswerNodeField) => {
+                  handleNodeChange(node.id, value, field)
+                },
+              },
+            }) as AppNode,
+        )}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         edges={edges}

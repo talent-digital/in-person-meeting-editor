@@ -1,12 +1,12 @@
 import { type Edge, MarkerType } from "@xyflow/react"
-import { MeetingNodeType } from "../nodes/types"
 import { MeetingDto } from "../types/meeting-dto"
+import { AppNode } from "../types/app-node"
 
 const POSITION_X_INCREMENT = 300
-const POSITION_Y_INCREMENT = 300
+const POSITION_Y_INCREMENT = 350
 
-export const mapJsonToNodes = (data: MeetingDto["conversation"]): [MeetingNodeType[], Edge[]] => {
-  const nodeList: MeetingNodeType[] = []
+export const mapJsonToNodes = (data: MeetingDto["conversation"]): [AppNode[], Edge[]] => {
+  const nodeList: AppNode[] = []
   const edgeList: Edge[] = []
   let xIndex = 0
   let yIndex = -1
@@ -48,7 +48,7 @@ export const mapJsonToNodes = (data: MeetingDto["conversation"]): [MeetingNodeTy
 
         nodeList.push({
           id: enableId,
-          type: "meeting-node",
+          type: "answer-node",
           position: {
             x: xIndex * POSITION_X_INCREMENT,
             y: (yIndexNormalized + enableIndex) * POSITION_Y_INCREMENT,

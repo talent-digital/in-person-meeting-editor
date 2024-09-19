@@ -1,35 +1,32 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react"
-import { useState } from "react"
 import { IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import type { Node } from "@xyflow/react"
 
 import "./Node.css"
 
-export type MeetingNodeField = "actor" | "id" | "passTime" | "resultsIn" | "text"
-
-export type MeetingNodeType = Node<
-  {
-    actor: string
-    passTime?: boolean
-    resultsIn?: string
-    text: string
-    onChange?: (value: string | boolean, field: MeetingNodeField) => void
-    onDelete?: () => void
-  },
-  "meeting-node"
->
-
 const MIN_ROWS = 3
 const MAX_ROWS = 8
 
-export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
-  const [tempId, setTempId] = useState(id)
+export type AnswerNodeField = "resultsIn" | "text" | "passTime"
+
+export type AnswerNodeType = Node<
+  {
+    passTime?: boolean
+    resultsIn: string
+    text: string
+    onChange?: (value: string | boolean, field: AnswerNodeField) => void
+    onDelete?: () => void
+  },
+  "answer-node"
+>
+
+export function AnswerNode({ data, id }: NodeProps<AnswerNodeType>) {
   const suggestedRows = data.text.length / 25
   const rows = Math.min(Math.max(suggestedRows, MIN_ROWS), MAX_ROWS)
 
   return (
-    <div className='react-flow__node-default node-main-wrapper'>
+    <div className='react-flow__node-default node-main-wrapper answer-node'>
       <div className='node-inner-wrapper'>
         <IconButton
           sx={{
@@ -49,19 +46,7 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
         {id && (
           <div className='input-wrapper'>
             <label>Id</label>
-            <input
-              className='nodrag'
-              type='text'
-              value={tempId || id}
-              onChange={(e) => {
-                setTempId(e.target.value)
-              }}
-              onBlur={() => {
-                if (data.onChange && tempId !== id) {
-                  data.onChange(tempId, "id")
-                }
-              }}
-            />
+            <input className='nodrag' type='text' readOnly value={id} />
           </div>
         )}
 
@@ -74,20 +59,6 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
             onChange={(e) => {
               if (data.onChange) {
                 data.onChange(e.target.value, "text")
-              }
-            }}
-          />
-        </div>
-
-        <div className='input-wrapper'>
-          <label>Actor</label>
-          <input
-            className='nodrag'
-            type='text'
-            value={data.actor}
-            onChange={(e) => {
-              if (data.onChange) {
-                data.onChange(e.target.value, "actor")
               }
             }}
           />
