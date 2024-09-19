@@ -22,6 +22,7 @@ import { MeetingNodeType, MeetingNodeField } from "./nodes/types"
 import { mapJsonToNodes } from "./helpers/map-json-to-nodes"
 import { MeetingDto } from "./types/meeting-dto"
 import { MeetingDtoNode } from "./types/meeting-dto-node"
+import toast from "react-hot-toast"
 
 export function InPersonMeetingEditor() {
   const [nodes, setNodes, onNodesChange] = useNodesState<MeetingNodeType>([])
@@ -68,7 +69,7 @@ export function InPersonMeetingEditor() {
     if (field === "id" && typeof value === "string") {
       const newIdExists = nodes.some((node) => node.id === value)
       if (newIdExists) {
-        console.error("Id already exists")
+        toast.error("Id already exists")
         return
       }
 
@@ -171,7 +172,7 @@ export function InPersonMeetingEditor() {
       const { data, id } = node
 
       if (!data.actor) {
-        console.error("Actor is required")
+        toast.error("Actor is required")
         return acc
       }
 
