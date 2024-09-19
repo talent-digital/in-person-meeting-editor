@@ -1,8 +1,10 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react"
+import { useState } from "react"
+import { IconButton } from "@mui/material"
+import CloseIcon from "@mui/icons-material/Close"
 
 import { type MeetingNodeType } from "./types"
 import "./meeting-node.css"
-import { useState } from "react"
 
 const MIN_ROWS = 3
 const MAX_ROWS = 8
@@ -15,15 +17,21 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
   return (
     <div className='react-flow__node-default node-main-wrapper'>
       <div className='node-inner-wrapper'>
-        <button
+        <IconButton
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+          }}
           onClick={() => {
             if (data.onDelete) {
               data.onDelete()
             }
           }}
+          title='Delete node'
         >
-          Delete
-        </button>
+          <CloseIcon sx={{ fontSize: "12px" }} />
+        </IconButton>
         {id && (
           <div className='input-wrapper'>
             <label>Id</label>

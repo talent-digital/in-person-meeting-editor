@@ -11,6 +11,8 @@ import {
   type Edge,
   MarkerType,
 } from "@xyflow/react"
+import UploadIcon from "@mui/icons-material/Upload"
+import { Button } from "@mui/material"
 
 import "@xyflow/react/dist/style.css"
 import "./InPersonMeetingEditor.css"
@@ -203,20 +205,24 @@ export function InPersonMeetingEditor() {
   return (
     <>
       <div className='toolbar'>
-        <button
+        <Button
+          color='primary'
+          variant='outlined'
           onClick={() => {
             console.log(nodes)
           }}
         >
           Log nodes
-        </button>
+        </Button>
         <div>
-          <label>
+          <Button color='primary' variant='outlined' component='label' startIcon={<UploadIcon />}>
             Select file
             <input type='file' hidden onChange={handleImport} />
-          </label>
+          </Button>
         </div>
-        <button onClick={handleExport}>Export</button>
+        <Button color='primary' variant='outlined' onClick={handleExport}>
+          Export
+        </Button>
       </div>
       <ReactFlow
         nodes={nodes.map((node) => ({
