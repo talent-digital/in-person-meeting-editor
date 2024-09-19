@@ -157,7 +157,7 @@ export function InPersonMeetingEditor() {
     setNodes(newNodes)
   }
 
-  const handleAddNode = () => {
+  const handleAddMeetingNode = () => {
     const lastNode = nodes[nodes.length - 1] ?? { position: { x: 0, y: 0 } }
     const newNode: MeetingNodeType = {
       id: `node_${nodes.length + 1}`,
@@ -186,6 +186,25 @@ export function InPersonMeetingEditor() {
     const [newNodes, newEdges] = mapJsonToNodes(input.conversation)
     setNodes(newNodes)
     setEdges(newEdges)
+  }
+
+  const handleRemoveEdge = (edge: Edge) => {
+    const newEdges = edges.filter((e) => e.id !== edge.id)
+    const newNodes = nodes.map((node) => {
+      if (node.id === edge.source) {
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            resultsIn: "",
+          },
+        } as AppNode
+      }
+
+      return node
+    })
+    setEdges(newEdges)
+    setNodes(newNodes)
   }
 
   const handleExport = () => {
@@ -273,8 +292,13 @@ export function InPersonMeetingEditor() {
         >
           Export
         </Button>
-        <Button color='primary' variant='outlined' onClick={handleAddNode} startIcon={<AddIcon />}>
-          Add node
+        <Button
+          color='primary'
+          variant='outlined'
+          onClick={handleAddMeetingNode}
+          startIcon={<AddIcon />}
+        >
+          Add meeting node
         </Button>
       </div>
       <ReactFlow
@@ -294,6 +318,9 @@ export function InPersonMeetingEditor() {
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
         edges={edges}
+        onEdgeClick={(_, edge) => {
+          handleRemoveEdge(edge)
+        }}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
