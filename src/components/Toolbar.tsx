@@ -12,6 +12,8 @@ import { mapJsonToNodes } from "./map-json-to-nodes"
 import { MeetingNodeDto } from "../types/meeting-node-dto"
 import { EnablesDto } from "../types/enables-dto"
 import { AppNode } from "../types/app-node"
+import { z, ZodError } from "zod"
+import toast from "react-hot-toast"
 
 export const Toolbar = ({
   nodes,
@@ -77,13 +79,34 @@ export const Toolbar = ({
 
     const exportData: MeetingDto = { conversation }
 
-    const element = document.createElement("a")
-    const file = new Blob([JSON.stringify(exportData, null, 2)], {
-      type: "text/plain",
-    })
-    element.href = URL.createObjectURL(file)
-    element.download = "data.in_person_meeting.json"
-    element.click()
+    try {
+      validate(exportData)
+      const element = document.createElement("a")
+      const file = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: "text/plain",
+      })
+      element.href = URL.createObjectURL(file)
+      element.download = "data.in_person_meeting.json"
+      element.click()
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const formattedErrors = error.errors
+          .map(
+            (err) => `Path: ${err.path.join(" -> ")}\nMessage: ${err.message}\nCode: ${err.code}`,
+          )
+          .join("\n\n")
+
+        toast.error(`Error, unable to export:\n\n${formattedErrors}`)
+        return
+      }
+
+      if (error instanceof Error) {
+        toast.error(`Error, unable to export:\n\n${error.message}`)
+        return
+      }
+
+      toast.error(`Error, unable to export. ${String(error)}`)
+    }
   }
 
   const handleAddMeetingNode = () => {
@@ -184,3 +207,57 @@ const StyledToolbar = styled("div")(({ theme }) => ({
   gap: theme.spacing(2),
   background: "#fff",
 }))
+
+const DialogSchema = z.object({
+  conversation: z.record(
+    z.object({
+      text: z.string(),
+      passTime: z.boolean().optional(),
+      actor: z.string().regex(/^[a-zA-Z]+\.[a-zA-Z]+$/),
+      resultsIn: z.string().optional(),
+      enables: z
+        .array(
+          z.object({
+            text: z.string(),
+            testId: z.string().optional(),
+            resultsIn: z.string(),
+          }),
+        )
+        .optional(),
+    }),
+  ),
+})
+
+const validate = (data: unknown) => {
+  const parsedData = DialogSchema.parse(data)
+
+  // Check if "resultsIn" points to existing nodes
+  Object.entries(parsedData.conversation).forEach(([key, entry]) => {
+    if (entry.resultsIn && !parsedData.conversation[entry.resultsIn]) {
+      throw new Error(`Invalid resultsIn: "${entry.resultsIn}" in node "${key}" does not exist.`)
+    }
+
+    if (entry.enables) {
+      entry.enables.forEach((enable) => {
+        if (enable.resultsIn && !parsedData.conversation[enable.resultsIn]) {
+          throw new Error(
+            `Invalid resultsIn: "${enable.resultsIn}" in enabled option of "${key}" does not exist.`,
+          )
+        }
+      })
+    }
+  })
+
+  const hasIntro = Object.keys(parsedData.conversation).some((key) => key === "intro")
+  const hasEnding = Object.keys(parsedData.conversation).some((key) => key === "ending")
+
+  if (!hasIntro) {
+    throw new Error("Missing intro node.")
+  }
+
+  if (!hasEnding) {
+    throw new Error("Missing ending node.")
+  }
+
+  return
+}
