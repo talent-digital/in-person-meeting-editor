@@ -2,8 +2,10 @@ import { Handle, Position, type NodeProps } from "@xyflow/react"
 import { IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import type { Node } from "@xyflow/react"
+import { green } from "@mui/material/colors"
 
-import "./Node.css"
+import { StyledNodeMainWrapper } from "./StyledNodeMainWrapper"
+import { StyledInputWrapper } from "./StyledInputWrapper"
 
 const MIN_ROWS = 3
 const MAX_ROWS = 8
@@ -21,13 +23,13 @@ export type AnswerNodeType = Node<
   "answer-node"
 >
 
-export function AnswerNode({ data, id }: NodeProps<AnswerNodeType>) {
+export function AnswerNode({ data }: NodeProps<AnswerNodeType>) {
   const suggestedRows = data.text.length / 25
   const rows = Math.min(Math.max(suggestedRows, MIN_ROWS), MAX_ROWS)
 
   return (
-    <div className='react-flow__node-default node-main-wrapper answer-node'>
-      <div className='node-inner-wrapper'>
+    <StyledNodeMainWrapper className='react-flow__node-default' sx={{ background: green[50] }}>
+      <div>
         <IconButton
           sx={{
             position: "absolute",
@@ -43,14 +45,8 @@ export function AnswerNode({ data, id }: NodeProps<AnswerNodeType>) {
         >
           <CloseIcon sx={{ fontSize: "12px" }} />
         </IconButton>
-        {id && (
-          <div className='input-wrapper'>
-            <label>Id</label>
-            <input className='nodrag' type='text' readOnly value={id} />
-          </div>
-        )}
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Text</label>
           <textarea
             className='nodrag'
@@ -62,14 +58,14 @@ export function AnswerNode({ data, id }: NodeProps<AnswerNodeType>) {
               }
             }}
           />
-        </div>
+        </StyledInputWrapper>
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Results in</label>
           <input className='nodrag' disabled type='text' value={data.resultsIn} />
-        </div>
+        </StyledInputWrapper>
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Pass time</label>
           <input
             className='nodrag'
@@ -81,11 +77,11 @@ export function AnswerNode({ data, id }: NodeProps<AnswerNodeType>) {
               }
             }}
           />
-        </div>
+        </StyledInputWrapper>
       </div>
 
       <Handle type='source' position={Position.Right} />
       <Handle type='target' position={Position.Left} />
-    </div>
+    </StyledNodeMainWrapper>
   )
 }

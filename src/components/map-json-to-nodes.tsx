@@ -1,9 +1,12 @@
-import { type Edge, MarkerType } from "@xyflow/react"
+import { type Edge } from "@xyflow/react"
+
 import { MeetingDto } from "../types/meeting-dto"
 import { AppNode } from "../types/app-node"
+import { getAnswerNodeEdgeStyle } from "../helpers/get-answer-node-edge-style"
+import { getMeetingNodeEdgeStyle } from "../helpers/get-meeting-node-edge-style"
 
 const POSITION_X_INCREMENT = 300
-const POSITION_Y_INCREMENT = 350
+const POSITION_Y_INCREMENT = 300
 
 export const mapJsonToNodes = (data: MeetingDto["conversation"]): [AppNode[], Edge[]] => {
   const nodeList: AppNode[] = []
@@ -63,8 +66,7 @@ export const mapJsonToNodes = (data: MeetingDto["conversation"]): [AppNode[], Ed
           id: `${id}-${enableId}-in`,
           source: id,
           target: enableId,
-          markerEnd: { type: MarkerType.ArrowClosed, color: "black" },
-          style: { stroke: "black", strokeWidth: 2, strokeDasharray: "5,5" },
+          ...getAnswerNodeEdgeStyle(),
         })
 
         if (enable.resultsIn) {
@@ -72,8 +74,7 @@ export const mapJsonToNodes = (data: MeetingDto["conversation"]): [AppNode[], Ed
             id: `${id}-${enableId}-out`,
             source: enableId,
             target: enable.resultsIn,
-            markerEnd: { type: MarkerType.ArrowClosed, color: "black" },
-            style: { stroke: "black", strokeWidth: 2, strokeDasharray: "5,5" },
+            ...getAnswerNodeEdgeStyle(),
           })
         }
       })
@@ -84,8 +85,7 @@ export const mapJsonToNodes = (data: MeetingDto["conversation"]): [AppNode[], Ed
         id: xIndex.toString(),
         source: id,
         target: item.resultsIn,
-        markerEnd: { type: MarkerType.ArrowClosed, color: "black" },
-        style: { stroke: "black", strokeWidth: 2 },
+        ...getMeetingNodeEdgeStyle(),
       })
     }
   })

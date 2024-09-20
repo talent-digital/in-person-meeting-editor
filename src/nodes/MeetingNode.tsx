@@ -4,7 +4,9 @@ import { IconButton } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
 import type { Node } from "@xyflow/react"
 
-import "./Node.css"
+import toast from "react-hot-toast"
+import { StyledNodeMainWrapper } from "./StyledNodeMainWrapper"
+import { StyledInputWrapper } from "./StyledInputWrapper"
 
 export type MeetingNodeField = "actor" | "id" | "passTime" | "resultsIn" | "text"
 
@@ -24,13 +26,13 @@ const MIN_ROWS = 3
 const MAX_ROWS = 8
 
 export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
-  const [tempId, setTempId] = useState(id)
+  const [tempId, setTempId] = useState<string | undefined>(undefined)
   const suggestedRows = data.text.length / 25
   const rows = Math.min(Math.max(suggestedRows, MIN_ROWS), MAX_ROWS)
 
   return (
-    <div className='react-flow__node-default node-main-wrapper'>
-      <div className='node-inner-wrapper'>
+    <StyledNodeMainWrapper className='react-flow__node-default'>
+      <div>
         <IconButton
           sx={{
             position: "absolute",
@@ -47,25 +49,29 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
           <CloseIcon sx={{ fontSize: "12px" }} />
         </IconButton>
         {id && (
-          <div className='input-wrapper'>
+          <StyledInputWrapper>
             <label>Id</label>
             <input
               className='nodrag'
               type='text'
-              value={tempId || id}
+              value={tempId !== undefined ? tempId : id}
               onChange={(e) => {
                 setTempId(e.target.value)
               }}
               onBlur={() => {
-                if (data.onChange && tempId !== id) {
+                if (tempId === "") {
+                  toast.error("Id cannot be empty")
+                  return
+                }
+                if (data.onChange && tempId && tempId !== id) {
                   data.onChange(tempId, "id")
                 }
               }}
             />
-          </div>
+          </StyledInputWrapper>
         )}
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Text</label>
           <textarea
             className='nodrag'
@@ -77,9 +83,9 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
               }
             }}
           />
-        </div>
+        </StyledInputWrapper>
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Actor</label>
           <input
             className='nodrag'
@@ -91,14 +97,14 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
               }
             }}
           />
-        </div>
+        </StyledInputWrapper>
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Results in</label>
           <input className='nodrag' disabled type='text' value={data.resultsIn} />
-        </div>
+        </StyledInputWrapper>
 
-        <div className='input-wrapper'>
+        <StyledInputWrapper>
           <label>Pass time</label>
           <input
             className='nodrag'
@@ -110,11 +116,11 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
               }
             }}
           />
-        </div>
+        </StyledInputWrapper>
       </div>
 
       <Handle type='source' position={Position.Right} />
       <Handle type='target' position={Position.Left} />
-    </div>
+    </StyledNodeMainWrapper>
   )
 }
