@@ -41,6 +41,10 @@ export const Toolbar = ({
             meetingNode.resultsIn = data.resultsIn
           }
 
+          if (data.passTime) {
+            meetingNode.passTime = data.passTime
+          }
+
           if (id) {
             return {
               ...acc,
