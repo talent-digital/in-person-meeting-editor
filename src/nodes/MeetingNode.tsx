@@ -7,6 +7,7 @@ import type { Node } from "@xyflow/react"
 import toast from "react-hot-toast"
 import { StyledNodeMainWrapper } from "./StyledNodeMainWrapper"
 import { StyledInputWrapper } from "./StyledInputWrapper"
+import { StyledTextarea } from "./StyledTextarea"
 
 export type MeetingNodeField = "actor" | "id" | "passTime" | "resultsIn" | "text"
 
@@ -73,7 +74,7 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
 
         <StyledInputWrapper>
           <label>Text</label>
-          <textarea
+          <StyledTextarea
             className='nodrag'
             value={data.text}
             rows={rows}

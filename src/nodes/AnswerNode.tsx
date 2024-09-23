@@ -6,6 +6,7 @@ import { green } from "@mui/material/colors"
 
 import { StyledNodeMainWrapper } from "./StyledNodeMainWrapper"
 import { StyledInputWrapper } from "./StyledInputWrapper"
+import { StyledTextarea } from "./StyledTextarea"
 
 const MIN_ROWS = 3
 const MAX_ROWS = 8
@@ -48,7 +49,7 @@ export function AnswerNode({ data }: NodeProps<AnswerNodeType>) {
 
         <StyledInputWrapper>
           <label>Text</label>
-          <textarea
+          <StyledTextarea
             className='nodrag'
             value={data.text}
             rows={rows}
