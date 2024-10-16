@@ -7,6 +7,7 @@ import { green } from "@mui/material/colors"
 import { StyledNodeMainWrapper } from "./StyledNodeMainWrapper"
 import { StyledInputWrapper } from "./StyledInputWrapper"
 import { StyledTextarea } from "./StyledTextarea"
+import { StyledCheckboxWrapper } from "./StyledCheckboxWrapper"
 
 const MIN_ROWS = 3
 const MAX_ROWS = 8
@@ -24,9 +25,10 @@ export type AnswerNodeType = Node<
   "answer-node"
 >
 
-export function AnswerNode({ data }: NodeProps<AnswerNodeType>) {
+export function AnswerNode({ data, id }: NodeProps<AnswerNodeType>) {
   const suggestedRows = data.text.length / 25
   const rows = Math.min(Math.max(suggestedRows, MIN_ROWS), MAX_ROWS)
+  const timeGoesById = `${id}-time-goes-by`
 
   return (
     <StyledNodeMainWrapper className='react-flow__node-default' sx={{ background: green[50] }}>
@@ -66,9 +68,9 @@ export function AnswerNode({ data }: NodeProps<AnswerNodeType>) {
           <input className='nodrag' disabled type='text' value={data.resultsIn} />
         </StyledInputWrapper>
 
-        <StyledInputWrapper>
-          <label>Pass time</label>
+        <StyledCheckboxWrapper>
           <input
+            id={timeGoesById}
             className='nodrag'
             type='checkbox'
             checked={Boolean(data.passTime)}
@@ -78,7 +80,8 @@ export function AnswerNode({ data }: NodeProps<AnswerNodeType>) {
               }
             }}
           />
-        </StyledInputWrapper>
+          <label htmlFor={timeGoesById}>Time goes by</label>
+        </StyledCheckboxWrapper>
       </div>
 
       <Handle type='source' position={Position.Right} />

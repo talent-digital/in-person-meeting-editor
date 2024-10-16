@@ -8,6 +8,7 @@ import toast from "react-hot-toast"
 import { StyledNodeMainWrapper } from "./StyledNodeMainWrapper"
 import { StyledInputWrapper } from "./StyledInputWrapper"
 import { StyledTextarea } from "./StyledTextarea"
+import { StyledCheckboxWrapper } from "./StyledCheckboxWrapper"
 
 export type MeetingNodeField = "actor" | "id" | "passTime" | "resultsIn" | "text"
 
@@ -30,6 +31,7 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
   const [tempId, setTempId] = useState<string | undefined>(undefined)
   const suggestedRows = data.text.length / 25
   const rows = Math.min(Math.max(suggestedRows, MIN_ROWS), MAX_ROWS)
+  const timeGoesById = `${id}-time-goes-by`
 
   return (
     <StyledNodeMainWrapper className='react-flow__node-default'>
@@ -105,9 +107,9 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
           <input className='nodrag' disabled type='text' value={data.resultsIn} />
         </StyledInputWrapper>
 
-        <StyledInputWrapper>
-          <label>Pass time</label>
+        <StyledCheckboxWrapper>
           <input
+            id={timeGoesById}
             className='nodrag'
             type='checkbox'
             checked={Boolean(data.passTime)}
@@ -117,7 +119,8 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
               }
             }}
           />
-        </StyledInputWrapper>
+          <label htmlFor={timeGoesById}>Time goes by</label>
+        </StyledCheckboxWrapper>
       </div>
 
       <Handle type='source' position={Position.Right} />
