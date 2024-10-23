@@ -39,6 +39,8 @@ export const mapJsonToNodes = (data: MeetingDto["conversation"]): [AppNode[], Ed
         actor: item.actor,
         resultsIn: item.resultsIn,
         passTime: item.passTime,
+        fadeOut: item.fadeOut,
+        tooltip: item.tooltip,
       },
     })
 

@@ -10,14 +10,23 @@ import { StyledInputWrapper } from "./StyledInputWrapper"
 import { StyledTextarea } from "./StyledTextarea"
 import { StyledCheckboxWrapper } from "./StyledCheckboxWrapper"
 
-export type MeetingNodeField = "actor" | "id" | "passTime" | "resultsIn" | "text"
+export type MeetingNodeField =
+  | "actor"
+  | "fadeOut"
+  | "id"
+  | "passTime"
+  | "resultsIn"
+  | "text"
+  | "tooltip"
 
 export type MeetingNodeType = Node<
   {
     actor: string
+    fadeOut?: boolean
     passTime?: boolean
     resultsIn?: string
     text: string
+    tooltip?: string
     onChange?: (value: string | boolean, field: MeetingNodeField) => void
     onDelete?: () => void
   },
@@ -32,6 +41,7 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
   const suggestedRows = data.text.length / 25
   const rows = Math.min(Math.max(suggestedRows, MIN_ROWS), MAX_ROWS)
   const timeGoesById = `${id}-time-goes-by`
+  const fadeOutId = `${id}-fade-out`
 
   return (
     <StyledNodeMainWrapper className='react-flow__node-default'>
@@ -89,6 +99,20 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
         </StyledInputWrapper>
 
         <StyledInputWrapper>
+          <label>Tooltip</label>
+          <StyledTextarea
+            className='nodrag'
+            value={data.tooltip}
+            rows={rows}
+            onChange={(e) => {
+              if (data.onChange) {
+                data.onChange(e.target.value, "tooltip")
+              }
+            }}
+          />
+        </StyledInputWrapper>
+
+        <StyledInputWrapper>
           <label>Actor</label>
           <input
             className='nodrag'
@@ -120,6 +144,21 @@ export function MeetingNode({ data, id }: NodeProps<MeetingNodeType>) {
             }}
           />
           <label htmlFor={timeGoesById}>Time goes by</label>
+        </StyledCheckboxWrapper>
+
+        <StyledCheckboxWrapper>
+          <input
+            id={fadeOutId}
+            className='nodrag'
+            type='checkbox'
+            checked={Boolean(data.fadeOut)}
+            onChange={(e) => {
+              if (data.onChange) {
+                data.onChange(e.target.checked, "fadeOut")
+              }
+            }}
+          />
+          <label htmlFor={fadeOutId}>Fade out animation</label>
         </StyledCheckboxWrapper>
       </div>
 
