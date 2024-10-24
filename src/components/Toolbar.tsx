@@ -123,6 +123,8 @@ export const Toolbar = ({
         text: "",
         actor: "",
         resultsIn: "",
+        fadeOut: false,
+        tooltip: "",
       },
     }
 
@@ -215,10 +217,12 @@ const StyledToolbar = styled("div")(({ theme }) => ({
 const DialogSchema = z.object({
   conversation: z.record(
     z.object({
-      text: z.string(),
       passTime: z.boolean().optional(),
+      text: z.string(),
       actor: z.string().regex(/^[a-zA-Z]+\.[a-zA-Z]+$/),
       resultsIn: z.string().optional(),
+      tooltip: z.string().optional(),
+      fadeOut: z.boolean().optional(),
       enables: z
         .array(
           z.object({
